@@ -1,0 +1,229 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model alumni {
+  id            Int       @id @default(autoincrement())
+  nisn          String    @db.VarChar(15)
+  nama          String    @db.VarChar(75)
+  program       String    @db.VarChar(8)
+  jenjang       String    @db.VarChar(3)
+  kelas         String    @db.VarChar(9)
+  tunggakandu   Int
+  tunggakantl   Int
+  tunggakanspp  Int
+  du            Int
+  spp           Int
+  tahunajaran   String    @db.VarChar(15)
+  tanggalkeluar DateTime? @db.Date
+}
+
+model auth_activation_attempts {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  ip_address String   @db.VarChar(255)
+  user_agent String   @db.VarChar(255)
+  token      String?  @db.VarChar(255)
+  created_at DateTime @db.DateTime(0)
+}
+
+model auth_groups {
+  id                      Int                       @id @default(autoincrement()) @db.UnsignedInt
+  name                    String                    @db.VarChar(255)
+  description             String                    @db.VarChar(255)
+  auth_groups_permissions auth_groups_permissions[] @ignore
+  auth_groups_users       auth_groups_users[]       @ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model auth_groups_permissions {
+  group_id         Int              @default(0) @db.UnsignedInt
+  permission_id    Int              @default(0) @db.UnsignedInt
+  auth_groups      auth_groups      @relation(fields: [group_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "auth_groups_permissions_group_id_foreign")
+  auth_permissions auth_permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "auth_groups_permissions_permission_id_foreign")
+
+  @@index([permission_id], map: "auth_groups_permissions_permission_id_foreign")
+  @@index([group_id, permission_id], map: "group_id_permission_id")
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model auth_groups_users {
+  group_id    Int         @default(0) @db.UnsignedInt
+  user_id     Int         @default(0) @db.UnsignedInt
+  auth_groups auth_groups @relation(fields: [group_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "auth_groups_users_group_id_foreign")
+  users       users       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "auth_groups_users_user_id_foreign")
+
+  @@index([user_id], map: "auth_groups_users_user_id_foreign")
+  @@index([group_id, user_id], map: "group_id_user_id")
+  @@ignore
+}
+
+model auth_logins {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  ip_address String?  @db.VarChar(255)
+  email      String?  @db.VarChar(255)
+  user_id    Int?     @db.UnsignedInt
+  date       DateTime @db.DateTime(0)
+  success    Boolean
+
+  @@index([email], map: "email")
+  @@index([user_id], map: "user_id")
+}
+
+model auth_permissions {
+  id                      Int                       @id @default(autoincrement()) @db.UnsignedInt
+  name                    String                    @db.VarChar(255)
+  description             String                    @db.VarChar(255)
+  auth_groups_permissions auth_groups_permissions[] @ignore
+  auth_users_permissions  auth_users_permissions[]  @ignore
+}
+
+model auth_reset_attempts {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  email      String   @db.VarChar(255)
+  ip_address String   @db.VarChar(255)
+  user_agent String   @db.VarChar(255)
+  token      String?  @db.VarChar(255)
+  created_at DateTime @db.DateTime(0)
+}
+
+model auth_tokens {
+  id              Int      @id @default(autoincrement()) @db.UnsignedInt
+  selector        String   @db.VarChar(255)
+  hashedValidator String   @db.VarChar(255)
+  user_id         Int      @db.UnsignedInt
+  expires         DateTime @db.DateTime(0)
+  users           users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "auth_tokens_user_id_foreign")
+
+  @@index([user_id], map: "auth_tokens_user_id_foreign")
+  @@index([selector], map: "selector")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model auth_users_permissions {
+  user_id          Int              @default(0) @db.UnsignedInt
+  permission_id    Int              @default(0) @db.UnsignedInt
+  auth_permissions auth_permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "auth_users_permissions_permission_id_foreign")
+  users            users            @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "auth_users_permissions_user_id_foreign")
+
+  @@index([permission_id], map: "auth_users_permissions_permission_id_foreign")
+  @@index([user_id, permission_id], map: "user_id_permission_id")
+  @@ignore
+}
+
+model detail {
+  id          Int       @id
+  tanggal     DateTime? @db.Date
+  daftarulang Int?
+  tunggakan   Int?
+  spp         Int?
+  uangsaku    Int?
+  infaq       Int?
+  formulir    Int?
+  rekening    String?   @db.VarChar(15)
+  program     String    @db.VarChar(8)
+}
+
+model migrations {
+  id        BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  version   String @db.VarChar(255)
+  class     String @db.VarChar(255)
+  group     String @db.VarChar(255)
+  namespace String @db.VarChar(255)
+  time      Int
+  batch     Int    @db.UnsignedInt
+}
+
+model psb {
+  id            String    @id @db.VarChar(10)
+  nisn          String    @db.VarChar(15)
+  nama          String    @db.VarChar(75)
+  jenjang       String    @db.VarChar(3)
+  program       String    @db.VarChar(8)
+  tanggal       DateTime  @db.Date
+  tdu           Int
+  daftarulang   Int
+  spp           Int
+  status        String    @db.VarChar(17)
+  formulir      Int
+  rekening      String    @db.VarChar(15)
+  kelas         String    @db.VarChar(9)
+  tanggallahir  DateTime? @db.Date
+  asalsekolah   String?   @db.VarChar(75)
+  tahunmasuk    String    @db.VarChar(10)
+  ayah          String?   @db.VarChar(50)
+  pekerjaanayah String?   @db.VarChar(25)
+  alamatayah    String?   @db.VarChar(50)
+  ibu           String?   @db.VarChar(50)
+  pekerjaanibu  String?   @db.VarChar(25)
+  alamatibu     String?   @db.VarChar(50)
+  kontak1       String?   @db.VarChar(15)
+  kontak2       String?   @db.VarChar(15)
+  berkas        String    @db.VarChar(10)
+  tempatlahir   String?   @db.VarChar(15)
+}
+
+model santri {
+  nisn          String    @id @db.VarChar(15)
+  nama          String?   @db.VarChar(75)
+  program       String    @db.VarChar(8)
+  jenjang       String    @db.VarChar(3)
+  kelas         String    @db.VarChar(9)
+  tunggakandu   Int
+  tunggakantl   Int
+  tunggakanspp  Int
+  du            Int
+  spp           Int
+  tanggallahir  DateTime? @db.Date
+  asalsekolah   String?   @db.VarChar(75)
+  tahunmasuk    String?   @db.VarChar(10)
+  ayah          String?   @db.VarChar(25)
+  pekerjaanayah String?   @db.VarChar(25)
+  alamatayah    String?   @db.VarChar(50)
+  ibu           String?   @db.VarChar(25)
+  pekerjaanibu  String?   @db.VarChar(25)
+  alamatibu     String?   @db.VarChar(50)
+  kontak1       String?   @db.VarChar(15)
+  kontak2       String?   @db.VarChar(15)
+  berkas        String?   @db.VarChar(10)
+  tempatlahir   String?   @db.VarChar(15)
+}
+
+model transfer {
+  idtrans    Int      @id
+  nisn       String   @db.VarChar(15)
+  nama       String   @db.VarChar(75)
+  kelas      String   @db.VarChar(9)
+  saldomasuk Int
+  tanggal    DateTime @db.Date
+  keterangan String   @db.Text
+  rekening   String   @db.VarChar(15)
+  program    String   @db.VarChar(8)
+}
+
+model users {
+  id                     Int                      @id @default(autoincrement()) @db.UnsignedInt
+  email                  String                   @unique(map: "email") @db.VarChar(255)
+  username               String?                  @unique(map: "username") @db.VarChar(30)
+  password_hash          String                   @db.VarChar(255)
+  reset_hash             String?                  @db.VarChar(255)
+  reset_at               DateTime?                @db.DateTime(0)
+  reset_expires          DateTime?                @db.DateTime(0)
+  activate_hash          String?                  @db.VarChar(255)
+  status                 String?                  @db.VarChar(255)
+  status_message         String?                  @db.VarChar(255)
+  active                 Boolean                  @default(false)
+  force_pass_reset       Boolean                  @default(false)
+  created_at             DateTime?                @db.DateTime(0)
+  updated_at             DateTime?                @db.DateTime(0)
+  deleted_at             DateTime?                @db.DateTime(0)
+  auth_groups_users      auth_groups_users[]      @ignore
+  auth_tokens            auth_tokens[]
+  auth_users_permissions auth_users_permissions[] @ignore
+}
