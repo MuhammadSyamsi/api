@@ -8,8 +8,8 @@ const prisma = new PrismaClient();
 
 router.get('/test-db', async (req, res) => {
     try {
-        const alumni = await prisma.alumni.findMany(); // ganti sesuai model schema
-        res.json(alumni);
+        const users = await prisma.users.findMany(); // ganti sesuai model schema
+        res.json(users);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Terjadi kesalahan saat ambil data alumni' });
